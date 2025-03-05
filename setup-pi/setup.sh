@@ -8,7 +8,7 @@ cd "$REPO_DIR"
 
 # Exit if main.py doesn't exist
 if [ ! -f main.py ]; then
-    echo "Please symlink a \`main_*.py\` file to \`main.py\` inside pi_serial_uploader."
+    echo "Please symlink a \`main_*.py\` file to \`main.py\` inside the repo directory."
     echo "Example: \`ln -s main_foo.py main.py\`"
     exit 1
 fi
@@ -27,15 +27,15 @@ pip install -r requirements.txt
 
 # Copy the service file to the systemd services folder
 cd "$SETUP_FILES_DIR"
-sudo cp serial-uploader.service /etc/systemd/system/
+sudo cp pi-serial-uploader.service /etc/systemd/system/
 
 # Reload systemd daemon to read the new service file
 sudo systemctl daemon-reload
 
 # Enable the service to run on boot
-sudo systemctl enable serial-uploader.service
+sudo systemctl enable pi-serial-uploader.service
 
 # Start the service
-sudo systemctl restart serial-uploader.service
+sudo systemctl restart pi-serial-uploader.service
 
 echo "Reboot to apply changes to enable the serial port."

@@ -1,0 +1,15 @@
+[Unit]
+Description=Serial Uploader
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=victator
+WorkingDirectory=/home/victator/pi-serial-uploader/
+ExecStart=/home/victator/pi-serial-uploader/env/bin/python3 /home/victator/pi-serial-uploader/main.py
+
+[Install]
+WantedBy=multi-user.target
