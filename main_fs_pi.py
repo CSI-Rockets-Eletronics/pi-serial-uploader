@@ -26,4 +26,4 @@ def parse_packet(packet: bytes) -> str:
     raise ValueError(f"Expected packet length 24, got {len(packet)}")
 
 
-uploader.run("Scientific", delimiter, parse_packet)
+uploader.run("Scientific-1", delimiter, parse_packet)
