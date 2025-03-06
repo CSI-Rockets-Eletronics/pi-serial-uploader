@@ -2,14 +2,14 @@ import uploader
 import struct
 import json
 
-delimiter = b"\xAA\x55"  # {0b10101010, 0b01010101}
+delimiter = b"\xaa\x55"  # {0b10101010, 0b01010101}
 
 
 def parse_device(packet: bytes) -> str:
     if len(packet) == 24:
-        return "Scientific-1"
+        return "Scientific1"
     if len(packet) == 16:
-        return "Scientific-2"
+        return "Scientific2"
     raise ValueError(f"Invalid packet length: {len(packet)}")
 
 
