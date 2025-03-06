@@ -1,21 +1,11 @@
-import uploader
 import struct
-import json
 
-delimiter = b"\xAA\x55"  # {0b10101010, 0b01010101}
+import uploader
 
-
-def parse_device(packet: bytes) -> str:
-    if len(packet) == 23:
-        return "GPS"
-    if len(packet) == 20:
-        return "IMU"
-    if len(packet) == 16:
-        return "DHT"
-    raise ValueError(f"Invalid packet length: {len(packet)}")
+delimiter = b"\xaa\x55"  # {0b10101010, 0b01010101}
 
 
-def parse_packet(packet: bytes) -> str:
+def parse_packet(packet: bytes):
     if len(packet) == 23:
         # breakdown of "<QBBBiif":
         #   "<": little-endian
@@ -44,7 +34,7 @@ def parse_packet(packet: bytes) -> str:
             "longitude_fixed": longitude_fixed,
             "altitude": altitude,
         }
-        return json.dumps(data)
+        return uploader.Record("GPS", data)
 
     if len(packet) == 20:
         # breakdown of "<QHHHHHH":
@@ -66,7 +56,7 @@ def parse_packet(packet: bytes) -> str:
             "gy": gy,
             "gz": gz,
         }
-        return json.dumps(data)
+        return uploader.Record("IMU", data)
 
     if len(packet) == 16:
         # breakdown of "<Qff":
@@ -80,9 +70,7 @@ def parse_packet(packet: bytes) -> str:
             "temperature": temperature,
             "humidity": humidity,
         }
-        return json.dumps(data)
-
-    raise ValueError(f"Invalid packet length: {len(packet)}")
+        return uploader.Record("DHT", data)
 
 
-uploader.run(parse_device, delimiter, parse_packet)
+uploader.run(delimiter, parse_packet)

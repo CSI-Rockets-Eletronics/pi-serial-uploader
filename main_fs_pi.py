@@ -1,21 +1,11 @@
-import uploader
 import struct
-import json
+
+import uploader
 
 delimiter = b"\xaa\x55"  # {0b10101010, 0b01010101}
 
 
-def parse_device(packet: bytes) -> str:
-    if len(packet) == 24:
-        return "FsLoxGn2Transducers"
-    if len(packet) == 16:
-        return "FsInjectorTransducers"
-    if len(packet) == 17:
-        return "FsThermocouples"
-    raise ValueError(f"Invalid packet length: {len(packet)}")
-
-
-def parse_packet(packet: bytes) -> str:
+def parse_packet(packet: bytes):
     if len(packet) == 24:
         # breakdown of "<Qffff":
         #   "<": little-endian
@@ -31,7 +21,7 @@ def parse_packet(packet: bytes) -> str:
             "gn2_manifold_1": gn2_manifold_1,
             "gn2_manifold_2": gn2_manifold_2,
         }
-        return json.dumps(data)
+        return uploader.Record("FsLoxGn2Transducers", data)
 
     if len(packet) == 16:
         # breakdown of "<Qff":
@@ -44,7 +34,7 @@ def parse_packet(packet: bytes) -> str:
             "injector_manifold_1": injector_manifold_1,
             "injector_manifold_2": injector_manifold_2,
         }
-        return json.dumps(data)
+        return uploader.Record("FsInjectorTransducers", data)
 
     if len(packet) == 17:
         # breakdown of "<QffB":
@@ -58,9 +48,7 @@ def parse_packet(packet: bytes) -> str:
             "lox_celsius": lox_celsius,
             "gn2_celsius": gn2_celsius,
         }
-        return json.dumps(data)
-
-    raise ValueError(f"Invalid packet length: {len(packet)}")
+        return uploader.Record("FsThermocouples", data)
 
 
-uploader.run(parse_device, delimiter, parse_packet)
+uploader.run(delimiter, parse_packet)
