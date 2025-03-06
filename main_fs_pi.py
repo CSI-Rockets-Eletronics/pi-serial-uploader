@@ -9,9 +9,10 @@ delimiter = b"\xaa\x55"  # {0b10101010, 0b01010101}
 
 # values must be between 0 and 255 (1 byte)
 class FsCommands(Enum):
-    STATE_ABORT = 0
-    STATE_STANDBY = 1
-    STATE_GN2_STANDBY = 2
+    STATE_CUSTOM = 0
+    STATE_ABORT = 1
+    STATE_STANDBY = 2
+    STATE_GN2_STANDBY = 3
     STATE_GN2_FILL = 10
     STATE_GN2_PULSE_FILL_A = 11
     STATE_GN2_PULSE_FILL_B = 12
@@ -78,7 +79,38 @@ def format_message(message: Any):
     except KeyError:
         raise ValueError(f"Invalid command: {command}")
 
-    return struct.pack("<B", command_value) + delimiter
+    # solenoid states
+    gn2_abort = False
+    gn2_fill = False
+    pilot_vent = False
+    dome_pilot_open = False
+    run = False
+    water_suppression = False
+    igniter = False
+
+    if command_value == FsCommands.STATE_CUSTOM.value:
+        gn2_abort = message["gn2_abort"]
+        gn2_fill = message["gn2_fill"]
+        pilot_vent = message["pilot_vent"]
+        dome_pilot_open = message["dome_pilot_open"]
+        run = message["run"]
+        water_suppression = message["water_suppression"]
+        igniter = message["igniter"]
+
+    # return struct.pack("<B", command_value) + delimiter
+    command_bytes = struct.pack(
+        "<BBBBBBBB",
+        command_value,
+        gn2_abort,
+        gn2_fill,
+        pilot_vent,
+        dome_pilot_open,
+        run,
+        water_suppression,
+        igniter,
+    )
+
+    return command_bytes + delimiter
 
 
 uploader.run(delimiter, parse_packet, {"FiringStation": format_message})
