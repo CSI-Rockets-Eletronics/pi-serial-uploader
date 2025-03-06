@@ -97,9 +97,11 @@ def format_message(message: Any):
         water_suppression = message["water_suppression"]
         igniter = message["igniter"]
 
+    _dummy = 0
+
     # return struct.pack("<B", command_value) + delimiter
     command_bytes = struct.pack(
-        "<BBBBBBBB",
+        "<BBBBBBBBB",  # 9 bytes
         command_value,
         gn2_abort,
         gn2_fill,
@@ -108,6 +110,7 @@ def format_message(message: Any):
         run,
         water_suppression,
         igniter,
+        _dummy,
     )
 
     return command_bytes + delimiter
