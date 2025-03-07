@@ -26,7 +26,59 @@ class FsCommands(Enum):
     RESTART = 110
 
 
+class FsState(Enum):
+    CUSTOM = 0
+    ABORT = 1
+    STANDBY = 2
+    GN2_STANDBY = 3
+    GN2_FILL = 10
+    GN2_PULSE_FILL_A = 11
+    GN2_PULSE_FILL_B = 12
+    GN2_PULSE_FILL_C = 13
+    FIRE = 20
+    FIRE_MANUAL_DOME_PILOT_OPEN = 21
+    FIRE_MANUAL_DOME_PILOT_CLOSE = 22
+    FIRE_MANUAL_IGNITER = 23
+    FIRE_MANUAL_RUN = 24
+
+
 def parse_packet(packet: bytes):
+    # struct FsStatePacket {
+    #     FsState state;           // 1 byte
+    #     bool gn2_abort;          // 1 byte
+    #     bool gn2_fill;           // 1 byte
+    #     bool pilot_vent;         // 1 byte
+    #     bool dome_pilot_open;    // 1 byte
+    #     bool run;                // 1 byte
+    #     bool water_suppression;  // 1 byte
+    #     bool igniter;            // 1 byte
+    # };
+    if len(packet) == 8:
+        # Breakdown of "<BBBBBBBB":
+        #   "<": little-endian
+        #   "B": uint8_t (1 byte)
+        (
+            state,
+            gn2_abort,
+            gn2_fill,
+            pilot_vent,
+            dome_pilot_open,
+            run,
+            water_suppression,
+            igniter,
+        ) = struct.unpack("<BBBBBBBB", packet)
+        data = {
+            "state": FsState(state).name,
+            "gn2_abort": bool(gn2_abort),
+            "gn2_fill": bool(gn2_fill),
+            "pilot_vent": bool(pilot_vent),
+            "dome_pilot_open": bool(dome_pilot_open),
+            "run": bool(run),
+            "water_suppression": bool(water_suppression),
+            "igniter": bool(igniter),
+        }
+        return uploader.Record("FsState", data)
+
     if len(packet) == 24:
         # breakdown of "<Qffff":
         #   "<": little-endian
