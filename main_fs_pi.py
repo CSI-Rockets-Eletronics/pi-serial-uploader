@@ -68,7 +68,7 @@ def parse_packet(packet: bytes):
             run,
             water_suppression,
             igniter,
-        ) = struct.unpack("<BBBBBBBB", packet)
+        ) = struct.unpack("<IBBBBBBBB", packet)
         data = {
             "ms_since_boot": ms_since_boot,
             "state": FsState(state).name,
