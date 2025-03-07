@@ -129,7 +129,18 @@ def run_poll_messages(device: str, format_message: MessageFormatter):
         message = get_message(device)
         if message is not None:
             print(f"Received message from server: {message}", file=sys.stderr)
-            ser.write(format_message(message))
+
+            try:
+                message = format_message(message)
+            except Exception as e:
+                print(
+                    "Error formatting message:",
+                    e,
+                    file=sys.stderr,
+                )
+                continue
+
+            ser.write(message)
 
 
 def run(
