@@ -53,11 +53,13 @@ def parse_packet(packet: bytes):
     #     bool water_suppression;  // 1 byte
     #     bool igniter;            // 1 byte
     # };
-    if len(packet) == 8:
-        # Breakdown of "<BBBBBBBB":
+    if len(packet) == 12:
+        # Breakdown of "<IBBBBBBBB":
         #   "<": little-endian
+        #   "I": uint32_t (4 bytes)
         #   "B": uint8_t (1 byte)
         (
+            ms_since_boot,
             state,
             gn2_abort,
             gn2_fill,
@@ -68,6 +70,7 @@ def parse_packet(packet: bytes):
             igniter,
         ) = struct.unpack("<BBBBBBBB", packet)
         data = {
+            "ms_since_boot": ms_since_boot,
             "state": FsState(state).name,
             "gn2_abort": bool(gn2_abort),
             "gn2_fill": bool(gn2_fill),
@@ -151,11 +154,9 @@ def format_message(message: Any):
         water_suppression = message["water_suppression"]
         igniter = message["igniter"]
 
-    _dummy = 0
-
     # return struct.pack("<B", command_value) + delimiter
     command_bytes = struct.pack(
-        "<BBBBBBBBB",  # 9 bytes
+        "<BBBBBBBB",  # 8 bytes
         command_value,
         gn2_abort,
         gn2_fill,
@@ -164,7 +165,6 @@ def format_message(message: Any):
         run,
         water_suppression,
         igniter,
-        _dummy,
     )
 
     return command_bytes + delimiter
