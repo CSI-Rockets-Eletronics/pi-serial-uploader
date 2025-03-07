@@ -22,6 +22,7 @@ class FsCommands(Enum):
     STATE_FIRE_MANUAL_DOME_PILOT_CLOSE = 22
     STATE_FIRE_MANUAL_IGNITER = 23
     STATE_FIRE_MANUAL_RUN = 24
+    RECALIBRATE_TRANSDUCERS = 100
 
 
 def parse_packet(packet: bytes):
