@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 from dataclasses import dataclass
@@ -133,14 +134,20 @@ def run_poll_messages(device: str, format_message: MessageFormatter):
             try:
                 message = format_message(message)
             except Exception as e:
-                print(
-                    "Error formatting message:",
-                    e,
-                    file=sys.stderr,
-                )
+                print("Error formatting message:", e, file=sys.stderr)
                 continue
 
             ser.write(message)
+
+
+def run_poll_messages_with_error_handling(
+    device: str, format_message: MessageFormatter
+):
+    try:
+        run_poll_messages(device, format_message)
+    except Exception as e:
+        print("Error in run_poll_messages:", e, file=sys.stderr)
+        os._exit(1)
 
 
 def run(
@@ -160,7 +167,10 @@ def run(
     ser.read_until(delimiter)
 
     for device, format_message in message_formatters.items():
-        Thread(target=run_poll_messages, args=(device, format_message)).start()
+        Thread(
+            target=run_poll_messages_with_error_handling,
+            args=(device, format_message),
+        ).start()
 
     post_thread: Thread | None = None
 
@@ -182,11 +192,7 @@ def run(
             try:
                 record = parse_packet(input_packet)
             except Exception as e:
-                print(
-                    "Error parsing input packet:",
-                    e,
-                    file=sys.stderr,
-                )
+                print("Error parsing input packet:", e, file=sys.stderr)
                 continue
 
             if record is None:
