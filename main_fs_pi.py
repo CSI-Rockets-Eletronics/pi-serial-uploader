@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Any
 
 import uploader
+from utils import MovingMedianFilter
 
 delimiter = b"\xaa\x55"  # {0b10101010, 0b01010101}
 
@@ -40,6 +41,16 @@ class FsState(Enum):
     FIRE_MANUAL_DOME_PILOT_CLOSE = 22
     FIRE_MANUAL_IGNITER = 23
     FIRE_MANUAL_RUN = 24
+
+
+window_size = 30
+
+lox_upper_filter = MovingMedianFilter(window_size)
+lox_lower_filter = MovingMedianFilter(window_size)
+gn2_manifold_1_filter = MovingMedianFilter(window_size)
+gn2_manifold_2_filter = MovingMedianFilter(window_size)
+injector_manifold_1_filter = MovingMedianFilter(window_size)
+injector_manifold_2_filter = MovingMedianFilter(window_size)
 
 
 def parse_packet(packet: bytes):
@@ -96,6 +107,10 @@ def parse_packet(packet: bytes):
             "lox_lower": lox_lower,
             "gn2_manifold_1": gn2_manifold_1,
             "gn2_manifold_2": gn2_manifold_2,
+            "lox_upper_median": lox_upper_filter.add(lox_upper).median(),
+            "lox_lower_median": lox_lower_filter.add(lox_lower).median(),
+            "gn2_manifold_1_median": gn2_manifold_1_filter.add(gn2_manifold_1).median(),
+            "gn2_manifold_2_median": gn2_manifold_2_filter.add(gn2_manifold_2).median(),
         }
         return uploader.Record("FsLoxGn2Transducers", data)
 
@@ -109,6 +124,12 @@ def parse_packet(packet: bytes):
             "ts": ts,
             "injector_manifold_1": injector_manifold_1,
             "injector_manifold_2": injector_manifold_2,
+            "injector_manifold_1_median": injector_manifold_1_filter.add(
+                injector_manifold_1
+            ).median(),
+            "injector_manifold_2_median": injector_manifold_2_filter.add(
+                injector_manifold_2
+            ).median(),
         }
         return uploader.Record("FsInjectorTransducers", data)
 
