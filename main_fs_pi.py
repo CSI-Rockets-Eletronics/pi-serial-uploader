@@ -46,7 +46,7 @@ class FsState(Enum):
 window_size = 30
 
 lox_upper_filter = MovingMedianFilter(window_size)
-lox_lower_filter = MovingMedianFilter(window_size)
+chamber_filter = MovingMedianFilter(window_size)
 gn2_manifold_1_filter = MovingMedianFilter(window_size)
 gn2_manifold_2_filter = MovingMedianFilter(window_size)
 injector_manifold_1_filter = MovingMedianFilter(window_size)
@@ -101,17 +101,17 @@ def parse_packet(packet: bytes):
         #   "<": little-endian
         #   "Q": uint64_t (8 bytes)
         #   "f": float (4 bytes)
-        ts, lox_upper, lox_lower, gn2_manifold_1, gn2_manifold_2 = struct.unpack(
+        ts, lox_upper, chamber, gn2_manifold_1, gn2_manifold_2 = struct.unpack(
             "<Qffff", packet
         )
         data = {
             "ts": ts,
             "lox_upper": lox_upper,
-            "lox_lower": lox_lower,
+            "chamber": chamber,
             "gn2_manifold_1": gn2_manifold_1,
             "gn2_manifold_2": gn2_manifold_2,
             "lox_upper_median": lox_upper_filter.add(lox_upper).median(),
-            "lox_lower_median": lox_lower_filter.add(lox_lower).median(),
+            "chamber_median": chamber_filter.add(chamber).median(),
             "gn2_manifold_1_median": gn2_manifold_1_filter.add(gn2_manifold_1).median(),
             "gn2_manifold_2_median": gn2_manifold_2_filter.add(gn2_manifold_2).median(),
         }
