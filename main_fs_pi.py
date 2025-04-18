@@ -61,11 +61,12 @@ def parse_packet(packet: bytes):
     #     bool pilot_vent;         // 1 byte
     #     bool dome_pilot_open;    // 1 byte
     #     bool run;                // 1 byte
+    #     bool five_two;           // 1 byte
     #     bool water_suppression;  // 1 byte
     #     bool igniter;            // 1 byte
     # };
     if len(packet) == 12:
-        # Breakdown of "<IBBBBBBBB":
+        # Breakdown of "<IBBBBBBBBB":
         #   "<": little-endian
         #   "I": uint32_t (4 bytes)
         #   "B": uint8_t (1 byte)
@@ -77,9 +78,10 @@ def parse_packet(packet: bytes):
             pilot_vent,
             dome_pilot_open,
             run,
+            five_two,
             water_suppression,
             igniter,
-        ) = struct.unpack("<IBBBBBBBB", packet)
+        ) = struct.unpack("<IBBBBBBBBB", packet)
         data = {
             "ms_since_boot": ms_since_boot,
             "state": FsState(state).name,
@@ -88,6 +90,7 @@ def parse_packet(packet: bytes):
             "pilot_vent": bool(pilot_vent),
             "dome_pilot_open": bool(dome_pilot_open),
             "run": bool(run),
+            "five_two": bool(five_two),
             "water_suppression": bool(water_suppression),
             "igniter": bool(igniter),
         }
@@ -163,6 +166,7 @@ def format_message(message: Any):
     pilot_vent = False
     dome_pilot_open = False
     run = False
+    five_two = False
     water_suppression = False
     igniter = False
 
@@ -172,18 +176,19 @@ def format_message(message: Any):
         pilot_vent = message["pilot_vent"]
         dome_pilot_open = message["dome_pilot_open"]
         run = message["run"]
+        five_two = message["five_two"]
         water_suppression = message["water_suppression"]
         igniter = message["igniter"]
 
-    # return struct.pack("<B", command_value) + delimiter
     command_bytes = struct.pack(
-        "<BBBBBBBB",  # 8 bytes
+        "<BBBBBBBBB",  # 8 bytes
         command_value,
         gn2_abort,
         gn2_fill,
         pilot_vent,
         dome_pilot_open,
         run,
+        five_two,
         water_suppression,
         igniter,
     )
