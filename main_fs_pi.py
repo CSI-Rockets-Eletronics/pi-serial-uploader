@@ -65,7 +65,7 @@ def parse_packet(packet: bytes):
     #     bool water_suppression;  // 1 byte
     #     bool igniter;            // 1 byte
     # };
-    if len(packet) == 12:
+    if len(packet) == 13:
         # Breakdown of "<IBBBBBBBBB":
         #   "<": little-endian
         #   "I": uint32_t (4 bytes)
