@@ -13,7 +13,7 @@ MAX_RECORDS_PER_BATCH = 500
 URL = "http://localhost:3000"
 ENVIRONMENT_KEY = "0"
 
-ser = serial.Serial("/dev/ttyS0", 230400)
+ser = serial.Serial("/dev/serial0", 230400)
 
 
 @dataclass
