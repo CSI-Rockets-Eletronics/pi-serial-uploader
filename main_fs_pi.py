@@ -137,16 +137,18 @@ def parse_packet(packet: bytes):
         return uploader.Record("FsInjectorTransducers", data)
 
     if len(packet) == 17:
-        # breakdown of "<QffB":
+        # breakdown of "<Qfff":
         #   "<": little-endian
         #   "Q": uint64_t (8 bytes)
         #   "f": float (4 bytes)
-        #   "B": uint8_t (1 byte)
-        ts, lox_celsius, gn2_celsius, _dummy = struct.unpack("<QffB", packet)
+        ts, lox_celsius, gn2_celsius, gn2_surface_celsius = struct.unpack(
+            "<Qfff", packet
+        )
         data = {
             "ts": ts,
             "lox_celsius": lox_celsius,
             "gn2_celsius": gn2_celsius,
+            "gn2_surface_celsius": gn2_surface_celsius,
         }
         return uploader.Record("FsThermocouples", data)
 
