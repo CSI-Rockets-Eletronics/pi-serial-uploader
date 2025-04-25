@@ -136,7 +136,7 @@ def parse_packet(packet: bytes):
         }
         return uploader.Record("FsInjectorTransducers", data)
 
-    if len(packet) == 17:
+    if len(packet) == 20:
         # breakdown of "<Qfff":
         #   "<": little-endian
         #   "Q": uint64_t (8 bytes)
