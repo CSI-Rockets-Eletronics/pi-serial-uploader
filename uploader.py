@@ -13,7 +13,19 @@ MAX_RECORDS_PER_BATCH = 500
 URL = "http://localhost:3000"
 ENVIRONMENT_KEY = "0"
 
-ser = serial.Serial("/dev/ttyAMA0", 230400)
+
+def get_serial_port():
+    with open("/proc/device-tree/model", "r") as f:
+        model = f.read()
+        if "Raspberry Pi 5" in model:
+            return "/dev/ttyAMA0"
+        elif "Raspberry Pi 4" in model:
+            return "/dev/serial0"
+        else:
+            raise Exception("Unknown device model")
+
+
+ser = serial.Serial(get_serial_port(), 230400)
 
 
 @dataclass
