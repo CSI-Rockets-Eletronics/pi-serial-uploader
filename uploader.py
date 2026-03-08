@@ -18,7 +18,7 @@ def get_serial_port():
     with open("/proc/device-tree/model", "r") as f:
         model = f.read()
         if "Raspberry Pi 5" in model:
-            return "/dev/ttyAMA0"
+            return "/dev/ttyAMA10"
         elif "Raspberry Pi 4" in model:
             return "/dev/serial0"
         else:
