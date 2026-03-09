@@ -25,7 +25,7 @@ def get_serial_port():
             raise Exception("Unknown device model")
 
 
-ser = serial.Serial(get_serial_port(), 230400)
+ser = serial.Serial(get_serial_port(), 115200)
 
 
 @dataclass
