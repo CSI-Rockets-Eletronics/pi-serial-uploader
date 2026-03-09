@@ -203,6 +203,8 @@ def run(
 
             try:
                 record = parse_packet(input_packet)
+                print(f"[DEBUG] parse_packet result: {record}", file=sys.stderr)
+                
             except Exception as e:
                 print("Error parsing input packet:", e, file=sys.stderr)
                 continue
@@ -225,6 +227,7 @@ def run(
             )
             records_count += 1
 
+        print(f"[DEBUG] records_dict: {records_dict}", file=sys.stderr)
         for device, records in records_dict.items():
             post_thread = Thread(target=post_records, args=(device, records))
             post_thread.start()
