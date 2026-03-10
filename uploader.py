@@ -85,7 +85,7 @@ def post_records(device: str, records: list[Any]):
         )
     else:
         print(
-            f"Sent {len(records)} records to server for device {device}",
+            f"Sent {len(records)} records to server for device {device}: {result.json()}",
             file=sys.stderr,
         )
 
