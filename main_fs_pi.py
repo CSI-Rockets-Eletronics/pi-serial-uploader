@@ -26,7 +26,7 @@ class FsCommands(Enum):
     EREG_CLOSED = 30
     EREG_STAGE_1 = 31
     EREG_STAGE_2 = 32
-    EREG_SET_STATE = 33 
+    EREG_SET_GAINS = 33 
     RECALIBRATE_TRANSDUCERS = 100
     RESTART = 110
 
@@ -295,6 +295,20 @@ def format_message(message: Any):
     lox_disconnect = False
     igniter = False
     ereg_power = False
+
+    if command_value == FsCommands.EREG_SET_GAINS.value:
+       kp = float(message["kp"])
+       ki = float(message["ki"])
+       kd = float(message["kd"])
+       
+       command_bytes = struct.pack(
+           "<Bfff",  # 13 bytes
+           command_value,
+           kp,
+           ki,
+           kd,
+       )
+       return command_bytes + delimiter
 
     if command_value == FsCommands.STATE_CUSTOM.value:
         gn2_drain = message["gn2_drain"]
