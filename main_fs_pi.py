@@ -26,6 +26,7 @@ class FsCommands(Enum):
     EREG_CLOSED = 30
     EREG_STAGE_1 = 31
     EREG_STAGE_2 = 32
+    EREG_SET_STATE = 33 
     RECALIBRATE_TRANSDUCERS = 100
     RESTART = 110
 
