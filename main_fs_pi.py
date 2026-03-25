@@ -118,13 +118,18 @@ def parse_packet(packet: bytes):
     #     bool ereg_closed;      // 1 byte
     #     bool ereg_stage_1;     // 1 byte
     #     bool ereg_stage_2;     // 1 byte
-    # };  // size: 35 bytes
-    if len(packet) == 35:
-        # Breakdown of "<QffffffBBB":
+    #     float current_angle;   // 4 bytes
+    #     float p_cont;          // 4 bytes
+    #     float i_cont;          // 4 bytes
+    #     float d_cont;          // 4 bytes
+    # };  // size: 51 bytes
+    if len(packet) == 51:
+        # Breakdown of "<QffffffBBBffff":
         #   "<": little-endian
         #   "Q": uint64_t (8 bytes)
         #   "f": float (4 bytes each, 6 total)
         #   "B": uint8_t / bool (1 byte each, 3 total)
+        #   "f": float (4 bytes each, 4 total)
         (
             ts,
             oxtank_1,
@@ -136,7 +141,11 @@ def parse_packet(packet: bytes):
             ereg_closed,
             ereg_stage_1,
             ereg_stage_2,
-        ) = struct.unpack("<QffffffBBB", packet)
+            current_angle,
+            p_cont,
+            i_cont,
+            d_cont,
+        ) = struct.unpack("<QffffffBBBffff", packet)
         data = {
             "ts": ts,
             "oxtank_1": oxtank_1,
@@ -148,6 +157,10 @@ def parse_packet(packet: bytes):
             "ereg_closed": bool(ereg_closed),
             "ereg_stage_1": bool(ereg_stage_1),
             "ereg_stage_2": bool(ereg_stage_2),
+            "current_angle": current_angle,
+            "p_cont": p_cont,
+            "i_cont": i_cont,
+            "d_cont": d_cont,
             "oxtank_1_median": oxtank_1_filter.add(oxtank_1).median(),
             "oxtank_2_median": oxtank_2_filter.add(oxtank_2).median(),
             "copv_1_median": copv_1_filter.add(copv_1).median(),
