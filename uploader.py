@@ -13,7 +13,7 @@ MAX_RECORDS_PER_BATCH = 500
 URL = "http://localhost:3000"
 ENVIRONMENT_KEY = "0"
 
-
+# dynamic serial
 def get_serial_port():
     with open("/proc/device-tree/model", "r") as f:
         model = f.read()
