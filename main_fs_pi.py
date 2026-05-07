@@ -27,7 +27,6 @@ class FsCommands(Enum):
     EREG_CLOSED = 30
     EREG_STAGE_1 = 31
     EREG_STAGE_2 = 32
-    EREG_SET_GAINS = 33
     RECALIBRATE_TRANSDUCERS = 100
     RESTART = 110
 
@@ -74,7 +73,7 @@ def parse_packet(packet: bytes):
     #     bool lox_fill;           // 1 byte
     #     bool lox_disconnect;     // 1 byte
     #     bool igniter;            // 1 byte
-    #     bool ereg_power;         // 1 byte
+    #     bool igniter_backup;     // 1 byte
     # };  // size: 14 bytes
     if len(packet) == 14:
         # Breakdown of "<IBBBBBBBBBB":
@@ -92,7 +91,7 @@ def parse_packet(packet: bytes):
             lox_fill,
             lox_disconnect,
             igniter,
-            ereg_power,
+            igniter_backup,
         ) = struct.unpack("<IBBBBBBBBBB", packet)
         data = {
             "ms_since_boot": ms_since_boot,
@@ -105,7 +104,7 @@ def parse_packet(packet: bytes):
             "lox_fill": bool(lox_fill),
             "lox_disconnect": bool(lox_disconnect),
             "igniter": bool(igniter),
-            "ereg_power": bool(ereg_power),
+            "igniter_backup": bool(igniter_backup),
         }
         return uploader.Record("FsState", data)
 
@@ -257,7 +256,7 @@ def parse_packet(packet: bytes):
     #     int16_t lox_fill_ma;        // 2 bytes
     #     int16_t lox_disconnect_ma;  // 2 bytes
     #     int16_t igniter_ma;         // 2 bytes
-    #     int16_t ereg_power_ma;      // 2 bytes
+    #     int16_t igniter_backup_ma;  // 2 bytes
     # };  // size: 26 bytes
     if len(packet) == 26:
         # Breakdown of "<Qhhhhhhhhh":
@@ -274,7 +273,7 @@ def parse_packet(packet: bytes):
             lox_fill_ma,
             lox_disconnect_ma,
             igniter_ma,
-            ereg_power_ma,
+            igniter_backup_ma,
         ) = struct.unpack("<Qhhhhhhhhh", packet)
         data = {
             "ts": ts,
@@ -286,7 +285,7 @@ def parse_packet(packet: bytes):
             "lox_fill_ma": lox_fill_ma,
             "lox_disconnect_ma": lox_disconnect_ma,
             "igniter_ma": igniter_ma,
-            "ereg_power_ma": ereg_power_ma,
+            "igniter_backup_ma": igniter_backup_ma,
         }
         return uploader.Record("RelayCurrentMonitor", data)
 
@@ -309,21 +308,7 @@ def format_message(message: Any):
     lox_fill = False
     lox_disconnect = False
     igniter = False
-    ereg_power = False
-
-    if command_value == FsCommands.EREG_SET_GAINS.value:
-       kp = float(message["kp"])
-       ki = float(message["ki"])
-       kd = float(message["kd"])
-       
-       command_bytes = struct.pack(
-           "<Bfff",  # 13 bytes
-           command_value,
-           kp,
-           ki,
-           kd,
-       )
-       return command_bytes + delimiter
+    igniter_backup = False
 
     if command_value == FsCommands.STATE_CUSTOM.value:
         gn2_drain = message["gn2_drain"]
@@ -334,7 +319,7 @@ def format_message(message: Any):
         lox_fill = message["lox_fill"]
         lox_disconnect = message["lox_disconnect"]
         igniter = message["igniter"]
-        ereg_power = message["ereg_power"]
+        igniter_backup = message["igniter_backup"]
 
     command_bytes = struct.pack(
         "<BBBBBBBBBB",  # 10 bytes
@@ -347,7 +332,7 @@ def format_message(message: Any):
         lox_fill,
         lox_disconnect,
         igniter,
-        ereg_power,
+        igniter_backup,
     )
 
     return command_bytes + delimiter
